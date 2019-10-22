@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700|Pacifico&display=swap" rel="stylesheet">
+
+    <link href="../front-end/style.css" rel="stylesheet">
+
+    <title>Twitter</title>
+</head>
+
+<body>
+    <div class="container">
+        <div id="login-container">
+            <h1>Twitter</h1>
+            <h4>See what's happening in the world.</h4>
+            <form>
+                <!-- This allows the form to be toggled for log in or signup. If equal to 1 then login else equal to 0 and signup  -->
+                <input type="hidden" id="loginActive" name="loginActive" value="1">
+
+                <div class="form-group">
+                    <label for="username" data-toggle="tooltip" data-placement="right" title="Username can contain up to 50 characters">Username <span class="question-mark">&#10068;</span></label>
+                    <input type="username" class="form-control" id="username" aria-describedby="username" placeholder="Username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password" data-toggle="tooltip" data-placement="right" title="Password must contain at least one number, lower case letter, upper case letter, and contain 8 or more characters">Password <span class="question-mark">&#10068;</span></label>
+                    <input type="password" class="form-control" id="password" placeholder="Password">
+                </div>
+
+                <div class="form-group invisible" id="confirmPassword">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirmPasswordInput" placeholder="Confirm Password">
+                </div>
+
+                <!-- If there's any problems with log in/sign up then they will be displayed in this alert -->
+                <!--
+                <div id="error" class="alert alert-danger invisible" role="alert">
+                </div>
+-->
+
+                <div id="error-container">
+                    <div id="error" class="alert alert-danger alert-dismissible fade show invisible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-outline-primary" id="toggleLogin">Or Sign Up</button>
+                <button type="submit" class="btn btn-primary float-right" id="loginSignupButton">Login</button>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="../static/password.js"></script>
+    <script src="../static/username.js"></script>
+    <script src="../front-end/login.js"></script>
+    <script>
+
+        // Enable the tooltips
+        $(function() {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        // Add any error messages to the error div
+        function appendErrorMessages(username, password) {
+            appendSingleErrorMessage(username);
+            appendSingleErrorMessage(password);
+        }
+
+        function appendSingleErrorMessage(obj) {
+            if (obj.isValid() != true) {
+                document.getElementById("error").innerHTML += "<p>" + obj.isValid() + "</p>";
+            }
+        }
+
+        $(function() {
+            var socket = io();
+            $('#loginSignupButton').click(function() {
+
+                // Validation
+
+                var loginActive = $('#loginActive').val();
+                var username = new Username($('#username').val());
+                var password = new Password($('#password').val());
+
+                // Reset the error div
+                // If the length is 0, that means the user clicked the x button to close it which removes it
+                // If not then reset the inner html to just the button
+                if ($("#error").length == 0) {
+                    $("#error-container").html('<div id="error" class="alert alert-danger alert-dismissible fade show invisible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                } else {
+                    $("#error").html('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
+                }
+
+                // First, check for errors
+                // If any, display them
+                // If not, check if login/signup
+                // Then login/signup
+
+                var loginSignupData = {};
+                var confirmPassword = $('#confirmPasswordInput').val();
+                if (username.isValid() !== true || password.isValid() !== true) {
+                    if (loginActive == "0") {
+                        if ($('#password').val() != confirmPassword) {
+                            document.getElementById("error").innerHTML += "<p>" + "Error, the passwords don't match, please try again." + "</p>";
+                        }
+                    }
+                    appendErrorMessages(username, password);
+                    $("#error").removeClass("invisible");
+                } else if (username.isValid() === true && password.isValid() === true) {
+                    loginSignupData.loginActive = loginActive;
+                    loginSignupData.password = $('#password').val();
+                    loginSignupData.username = $('#username').val();
+                    alert(JSON.stringify(loginSignupData));
+                    if (loginActive == "0") {
+                        if ($('#password').val() == confirmPassword) {
+                            alert("Signup");
+                        }
+                    } else if (loginActive == "1") {
+                        alert("Login");
+                    }
+                    socket.emit('login', JSON.stringify(loginSignupData));
+                }
+
+                $('#username').val('');
+                return false;
+            });
+        });
+
+
+    </script>
