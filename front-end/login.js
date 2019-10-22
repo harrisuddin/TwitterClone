@@ -12,6 +12,7 @@ $("#toggleLogin").click(function () {
         $("#loginSignupButton").html("Sign Up");
         $("#toggleLogin").html("Or Login");
         $("#confirmPassword").removeClass("invisible");
+        $("#displayName").removeClass("invisible");
 
     // if loginActive is 0 (Signup)
     } else if ($("#loginActive").val() == "0") {
@@ -22,5 +23,6 @@ $("#toggleLogin").click(function () {
         $("#loginSignupButton").html("Login");
         $("#toggleLogin").html("Or Sign Up");
         $("#confirmPassword").addClass("invisible");
+        $("#displayName").addClass("invisible");
     }
 });
