@@ -30,4 +30,8 @@ mongoose.connect(process.env.DB_CONNECTION, {useNewUrlParser: true}, () => {
     console.log("connected to DB");
 });
 
-app.listen(3000); //change port later for heroku deployment
+var port = process.env.PORT || 80;
+
+app.listen(port, () => {
+    console.log(`Listening on port ${port}`);
+});
