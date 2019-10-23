@@ -46,12 +46,6 @@
                     <input type="password" class="form-control" id="confirmPasswordInput" placeholder="Confirm Password">
                 </div>
 
-                <!-- If there's any problems with log in/sign up then they will be displayed in this alert -->
-                <!--
-                <div id="error" class="alert alert-danger invisible" role="alert">
-                </div>
--->
-
                 <div id="error-container">
                     <div id="error" class="alert alert-danger alert-dismissible fade show invisible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -119,6 +113,7 @@
 
                 var loginSignupData = {};
                 var confirmPassword = $('#confirmPasswordInput').val();
+
                 if (username.isValid() !== true || password.isValid() !== true) {
                     if (loginActive == "0") {
                         if ($('#password').val() != confirmPassword) {
@@ -127,11 +122,14 @@
                     }
                     appendErrorMessages(username, password);
                     $("#error").removeClass("invisible");
+
                 } else if (username.isValid() === true && password.isValid() === true) {
+
                     loginSignupData.loginActive = loginActive;
                     loginSignupData.password = $('#password').val();
                     loginSignupData.username = $('#username').val();
                     alert(JSON.stringify(loginSignupData));
+
                     if (loginActive == "0") {
                         if ($('#password').val() == confirmPassword) {
                             alert("Signup");
@@ -139,7 +137,6 @@
                     } else if (loginActive == "1") {
                         alert("Login");
                     }
-                    //socket.emit('login', JSON.stringify(loginSignupData));
                 }
 
                 $('#username').val('');
